@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sparkplug B a fondo — Clase monográfica CONECTA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f172a; --bg2:#0a1120; --card:#1e293b; --card2:#182234;
+  --border:#334155; --accent:#2563eb; --accent2:#3b82f6; --accentsoft:#1d4ed830;
+  --text:#f1f5f9; --muted:#94a3b8; --muted2:#64748b;
+  --green:#16a34a; --amber:#d97706; --red:#dc2626; --violet:#7c3aed; --cyan:#0891b2;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.62;-webkit-font-smoothing:antialiased;font-size:15.5px}
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;background:var(--bg2);
+  border-right:1px solid var(--border);padding:26px 20px 40px}
+nav .brand{font-family:'Outfit',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.3px;
+  color:#fff;margin-bottom:2px}
+nav .brand span{color:var(--accent2)}
+nav .sub{font-size:11.5px;color:var(--muted2);font-family:var(--mono);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:20px}
+nav .grp{font-size:10.5px;font-weight:700;color:var(--muted2);letter-spacing:1.4px;
+  text-transform:uppercase;margin:20px 0 8px;padding-top:14px;border-top:1px solid #1e293b}
+nav a{display:block;font-size:13.3px;color:#cbd5e1;text-decoration:none;padding:6px 10px;
+  border-radius:6px;border-left:2px solid transparent;margin-bottom:1px;transition:.12s}
+nav a:hover{background:#1e293b;color:#fff;border-left-color:var(--accent)}
+nav a .n{color:var(--muted2);font-family:var(--mono);font-size:11px;margin-right:7px}
+nav .foot{margin-top:24px;padding-top:14px;border-top:1px solid #1e293b;font-size:11.5px;
+  color:var(--muted2);line-height:1.5}
+main{max-width:1000px;padding:52px 60px 120px}
+h1{font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;letter-spacing:-1.2px;
+  line-height:1.14;margin-bottom:14px}
+h2{font-family:'Outfit',sans-serif;font-size:29px;font-weight:700;letter-spacing:-.6px;
+  line-height:1.22;margin-bottom:16px}
+h3{font-family:'Outfit',sans-serif;font-size:19px;font-weight:600;margin:26px 0 10px;color:#e2e8f0}
+h4{font-size:14.5px;font-weight:700;margin:18px 0 7px;color:var(--accent2);
+  letter-spacing:.2px;text-transform:none}
+p{max-width:76ch;margin-bottom:14px;color:#cbd5e1}
+a{color:var(--accent2)}
+section{padding:52px 0 8px;border-top:1px solid #1e293b;scroll-margin-top:20px}
+section:first-of-type{border-top:none;padding-top:8px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:9px}
+.lead{font-size:17.5px;color:#e2e8f0;line-height:1.6;max-width:74ch;margin-bottom:18px}
+ul,ol{max-width:76ch;margin:0 0 16px 20px}
+li{margin-bottom:7px;color:#cbd5e1}
+li b,li strong{color:#fff}
+code{font-family:var(--mono);font-size:12.8px;background:#0b1322;color:#93c5fd;
+  padding:1.5px 6px;border-radius:4px;border:1px solid #1e293b}
+pre{background:#0b1322;border:1px solid #1e293b;border-radius:9px;padding:16px 18px;
+  overflow-x:auto;margin:14px 0 18px;font-family:var(--mono);font-size:12.6px;
+  line-height:1.66;color:#cbd5e1}
+pre .c{color:#64748b}
+pre .k{color:#c084fc}
+pre .s{color:#86efac}
+pre .n{color:#fbbf24}
+pre .f{color:#93c5fd}
+table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13.4px}
+th{text-align:left;padding:10px 12px;background:#182234;color:#93c5fd;font-weight:600;
+  border-bottom:1.5px solid var(--accent);font-size:12.3px;letter-spacing:.3px}
+td{padding:10px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1;vertical-align:top}
+tr:hover td{background:#131d2e}
+td code{font-size:12px}
+.box{border-radius:9px;padding:16px 20px;margin:18px 0;border-left:4px solid var(--accent);
+  background:var(--accentsoft);color:#dbeafe}
+.box.warn{border-left-color:var(--amber);background:#d9770614;color:#fde68a}
+.box.no{border-left-color:var(--red);background:#dc262614;color:#fecaca}
+.box.yes{border-left-color:var(--green);background:#16a34a14;color:#bbf7d0}
+.box.violet{border-left-color:var(--violet);background:#7c3aed14;color:#ddd6fe}
+.box .t{font-weight:700;display:block;margin-bottom:5px;font-size:13.6px;letter-spacing:.2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:16px 18px}
+.card .h{font-weight:700;font-size:14px;margin-bottom:6px;color:#fff}
+.card .d{font-size:13.2px;color:var(--muted);line-height:1.55}
+.src{font-size:11.6px;color:var(--muted2);font-family:var(--mono);margin:-6px 0 18px;
+  padding-left:2px;line-height:1.5}
+.svgwrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px 12px;margin:20px 0}
+svg{display:block;width:100%;margin:0 auto}
+.legend{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.legend span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.gloss dt{font-weight:700;color:#fff;font-family:var(--mono);font-size:13.4px;margin-top:14px}
+.gloss dd{color:#cbd5e1;font-size:13.6px;margin-left:0;padding-left:14px;
+  border-left:2px solid #1e293b}
+.quiz{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:22px 24px;margin:14px 0}
+.quiz .q{font-weight:600;margin:18px 0 10px;color:#fff;font-size:14.6px}
+.quiz .q:first-child{margin-top:0}
+.quiz label{display:block;padding:9px 13px;border:1px solid #2b3a52;border-radius:7px;
+  margin-bottom:6px;cursor:pointer;font-size:13.6px;color:#cbd5e1;transition:.12s}
+.quiz label:hover{border-color:var(--accent);background:#1a2740}
+.quiz input{margin-right:9px}
+.quiz .exp{display:none;margin:8px 0 4px;padding:11px 14px;border-radius:7px;
+  font-size:13.2px;border-left:3px solid var(--accent);background:#0b1322;color:#cbd5e1}
+.quiz .exp.show{display:block}
+.quiz .exp.ok{border-left-color:var(--green)}
+.quiz .exp.bad{border-left-color:var(--red)}
+button{background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:8px;
+  font-weight:600;font-size:14px;cursor:pointer;font-family:'Inter';margin-top:16px}
+button:hover{background:#1d4ed8}
+.score{margin-top:14px;font-weight:700;font-size:15px;display:none}
+.score.show{display:block}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;
+  border-radius:20px;background:#1e293b;color:#93c5fd;border:1px solid #334155;margin:0 4px 4px 0}
+.num-big{font-family:'Outfit';font-size:34px;font-weight:800;color:var(--accent2);
+  line-height:1;margin-bottom:4px}
+.eq{font-family:var(--mono);background:#0b1322;border:1px solid #1e293b;border-radius:8px;
+  padding:14px 18px;margin:14px 0;font-size:13px;color:#e2e8f0;overflow-x:auto}
+@media(max-width:900px){.layout{grid-template-columns:1fr}
+  nav{display:none}main{padding:30px 22px 80px}
+  .grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <div class="brand">Sparkplug <span>B</span> a fondo</div>
+  <div class="sub">Clase monográfica · CONECTA</div>
+
+  <div class="grp">Fundamentos</div>
+  <a href="#s0"><span class="n">0</span>Glosario</a>
+  <a href="#s1"><span class="n">1</span>Qué es y qué NO es</a>
+  <a href="#s2"><span class="n">2</span>El problema que resuelve</a>
+  <a href="#s3"><span class="n">3</span>Historia y quién lo hizo</a>
+
+  <div class="grp">Anatomía</div>
+  <a href="#s4"><span class="n">4</span>El namespace de 5 segmentos</a>
+  <a href="#s5"><span class="n">5</span>Los 9 tipos de mensaje</a>
+  <a href="#s6"><span class="n">6</span>Nacimiento y muerte (state)</a>
+  <a href="#s7"><span class="n">7</span>El payload protobuf</a>
+  <a href="#s8"><span class="n">8</span>Aliases y report-by-exception</a>
+
+  <div class="grp">Operación</div>
+  <a href="#s9"><span class="n">9</span>La secuencia completa</a>
+  <a href="#s10"><span class="n">10</span>QoS, retain y las trampas</a>
+  <a href="#s11"><span class="n">11</span>Números medidos</a>
+
+  <div class="grp">Decisión</div>
+  <a href="#s12"><span class="n">12</span>Cuándo sí, cuándo no</a>
+  <a href="#s13"><span class="n">13</span>Cautelas y limitaciones</a>
+  <a href="#s14"><span class="n">14</span>Sparkplug en GPE</a>
+  <a href="#s15"><span class="n">15</span>Cómo contarlo a un cliente</a>
+  <a href="#s18"><span class="n">A</span>Ejemplo corriendo (código)</a>
+
+  <div class="grp">Cierre</div>
+  <a href="#s16"><span class="n">16</span>Testeo</a>
+  <a href="#s17"><span class="n">17</span>Fuentes</a>
+
+  <div class="foot">Material de estudio interno.<br>Fuente primaria: especificación Eclipse Sparkplug 3.0 (ISO/IEC).</div>
+</nav>
+<main>
+<section id="portada" style="border-top:none;padding-top:0;padding-bottom:30px">
+<div class="kicker">Clase monografica &middot; Estudio interno CONECTA</div>
+<h1>Sparkplug B, a fondo</h1>
+<p class="lead">Que es, como funciona por dentro, por que existe, y donde calza (y donde no) en tu caso GPE. Nivel ingeniero: la especificacion, el payload binario, el modelo de estado y los numeros reales, con la fuente de cada afirmacion.</p>
+<div class="grid3" style="margin-top:26px">
+<div class="card"><div class="num-big">9</div><div class="d">tipos de mensaje define la spec. Tres familias: nacimiento, datos, control.</div></div>
+<div class="card"><div class="num-big">5</div><div class="d">segmentos fijos tiene el topic. Ninguno se improvisa.</div></div>
+<div class="card"><div class="num-big" style="color:#4ade80">~89%</div><div class="d">menos banda en un despliegue documentado, vs OPC-UA binario.</div></div>
+</div>
+<div class="box"><span class="t">La idea en una linea</span>
+MQTT transporta bytes de cualquier forma; Sparkplug B pone encima un contrato que fija como se llaman los topics, como se codifica el contenido y como se sabe si un equipo esta vivo. Lo segundo es lo unico que tu UNS de GPE todavia no tiene.</div>
+</section>
+
+
+<section id="s0">
+<div class="kicker">Bloque 0</div>
+<h2>Glosario</h2>
+
+<p class="lead">Todo el vocabulario que aparece en el resto de la clase, en una línea cada uno. Si un término no te calza más adelante, vuelve acá.</p>
+<dl class="gloss">
+<dt>MQTT</dt><dd>Protocolo de mensajería publicar/suscribir. Un <b>broker</b> (servidor) recibe mensajes en <b>topics</b> (canales) y los reparte a quien esté suscrito. Es el "transporte". No dice nada sobre qué va adentro del mensaje.</dd>
+<dt>UNS (Unified Namespace)</dt><dd>Un árbol único de nombres donde vive todo el dato de la planta, ordenado jerárquicamente. Es un <i>concepto de arquitectura</i>, no un producto ni un protocolo. Tier0 implementa un UNS.</dd>
+<dt>Sparkplug B</dt><dd>Una <b>especificación</b> (no un protocolo nuevo) que define cómo usar MQTT en industria: fija la estructura de los topics, el formato del contenido (Protobuf) y cómo se maneja el estado de los equipos. Es el tema de esta clase.</dd>
+<dt>Protobuf (Protocol Buffers)</dt><dd>Formato binario de Google para serializar datos estructurados. Compacto y tipado. Alternativa a JSON (que es texto).</dd>
+<dt>EoN (Edge of Network)</dt><dd>El nodo de borde: la pasarela que está en planta y publica los datos hacia el broker. En tu arquitectura, el bridge que lee OPC-UA.</dd>
+<dt>Métrica (Metric)</dt><dd>Una variable de proceso: temperatura, potencia, caudal. En Sparkplug cada una lleva nombre, tipo, unidad y valor.</dd>
+<dt>Alias</dt><dd>Un número corto que reemplaza el nombre largo de una métrica, para no repetirlo en cada mensaje.</dd>
+<dt>Nacimiento / Muerte (Birth/Death)</dt><dd>Mensajes que anuncian que un equipo se conectó (con todo lo que sabe medir) o que se cayó. Es la pieza central de Sparkplug.</dd>
+<dt>LWT (Last Will and Testament)</dt><dd>Mensaje que el broker guarda y publica <i>automáticamente</i> si un cliente se desconecta sin avisar. Es el mecanismo detrás de la "muerte".</dd>
+<dt>Report by Exception (RBE)</dt><dd>Publicar solo cuando el valor cambia, no cada ciclo. Ahorra ancho de banda.</dd>
+<dt>QoS</dt><dd>Nivel de garantía de entrega en MQTT: 0 = "que llegue si puede", 1 = "al menos una vez", 2 = "exactamente una vez".</dd>
+<dt>bdSeq</dt><dd>Contador de ciclos de vida de un nodo. Permite saber si el equipo se reinició.</dd>
+</dl>
+
+</section>
+<section id="s1">
+<div class="kicker">Bloque 1</div>
+<h2>Qué es esto y qué NO es</h2>
+
+<p class="lead">Antes de la mecánica, despejar la confusión más común: Sparkplug <b>no es</b> otra cosa que compite con MQTT. Es una capa de reglas <i>encima</i> de MQTT.</p>
+
+<div class="box yes"><span class="t">Sí es</span>
+Una especificación abierta de la Eclipse Foundation que dice tres cosas concretas: <b>cómo se llaman los topics</b>, <b>cómo se codifica el contenido</b> (Protobuf) y <b>cómo se sabe si un equipo está vivo o muerto</b>. Se apoya en MQTT, que sigue siendo el transporte.</div>
+
+<div class="box no"><span class="t">No es</span>
+<ul style="margin-bottom:0">
+<li>No es un protocolo de transporte nuevo. Sigue viajando por MQTT, sobre cualquier broker (Mosquitto, EMQX, HiveMQ, VerneMQ).</li>
+<li>No es un producto ni una plataforma. Es un documento de reglas.</li>
+<li>No reemplaza a OPC-UA ni a Modbus. Convive: OPC-UA lee la máquina, Sparkplug publica hacia arriba.</li>
+<li>No es obligatorio. Un UNS se puede construir con MQTT y JSON casero — a costa de diseñar a mano lo que Sparkplug ya resuelve.</li>
+</ul></div>
+
+<h3>La frase que lo resume</h3>
+<div class="eq">MQTT resuelve el problema de <b>comunicación</b>.<br>Sparkplug B resuelve el problema de <b>sistema industrial</b>.</div>
+
+<p>Dicho de otro modo: <code>MQTT</code> transporta bytes de cualquier forma. Dos fabricantes distintos, publicando "temperatura" al mismo broker, pueden mandar <code>22.4</code>, o <code>{"value":22.4,"unit":"C"}</code>, o un binario. Cada consumidor tiene que saber de antemano cómo decodificar a cada uno. Sparkplug elimina eso: si dos equipos hablan Sparkplug, se entienden <b>sin acordar nada entre ellos</b>.</p>
+
+<div class="svgwrap"><div class="svgwrap"><svg viewBox="0 0 1000 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MQTT solo frente a MQTT con Sparkplug B"><defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#64748b"/></marker>
+<marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#2563eb"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#16a34a"/></marker>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#dc2626"/></marker>
+<marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#7c3aed"/></marker>
+</defs>
+<rect x="40" y="40" width="420" height="150" rx="9" fill="#182234" stroke="#334155" stroke-width="1.5"/><text x="250" y="68" font-size="16" fill="#fff" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">MQTT solo</text><text x="250" y="96" font-size="12.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Mueve bytes de cualquier forma</text><text x="250" y="120" font-size="12.5" fill="#64748b" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">&quot;El transporte&quot;</text><text x="250" y="158" font-size="12.5" fill="#f59e0b" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">No dice qué va adentro</text><text x="250" y="178" font-size="12.5" fill="#f59e0b" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">No dice si está vivo</text>
+<rect x="540" y="40" width="420" height="150" rx="9" fill="#0f2a1a" stroke="#16a34a" stroke-width="1.5"/><text x="750" y="68" font-size="16" fill="#fff" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">MQTT + Sparkplug B</text><text x="750" y="96" font-size="12.5" fill="#86efac" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Topic fijo, Protobuf, estado</text><text x="750" y="120" font-size="12.5" fill="#64748b" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">&quot;El contrato de datos&quot;</text><text x="750" y="158" font-size="12.5" fill="#4ade80" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">✓ Estructura garantizada</text><text x="750" y="178" font-size="12.5" fill="#4ade80" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">✓ Vivo o muerto, por protocolo</text>
+<line x1="465" y1="115" x2="535" y2="115" stroke="#2563eb" stroke-width="2" marker-end="url(#ab)"/><text x="500" y="105" font-size="10" fill="#93c5fd" font-weight="600" text-anchor="middle" font-family="Inter,system-ui,sans-serif">encima</text>
+</svg></div></div>
+
+</section>
+<section id="s2">
+<div class="kicker">Bloque 2</div>
+<h2>El problema que resuelve (con tus palabras)</h2>
+
+<p class="lead">Esto lo vas a reconocer de inmediato: son los cuatro problemas que ya has visto en terreno con tus clientes.</p>
+
+<div class="grid2">
+<div class="card"><div class="h">1. MQTT no dice si el dato está vivo</div><div class="d">MQTT es "sin estado" a propósito: un suscriptor no puede saber si un equipo está conectado o simplemente está callado. El último valor queda guardado y se ve igual de válido sea de hace 2 segundos o de hace 3 días. El operador mira un número congelado creyendo que es actual.</div></div>
+<div class="card"><div class="h">2. Cada fabricante inventa su formato</div><div class="d">Sin reglas, cada proveedor publica como quiere. Integrar 20 equipos de 8 marcas son 8 convenciones distintas que mantener. Ese es el costo dominante de un proyecto MQTT industrial, y crece con cada equipo nuevo.</div></div>
+<div class="card"><div class="h">3. El dato no se describe a sí mismo</div><div class="d">Un mensaje <code>{"value":72.4}</code> no dice qué es, en qué unidad, ni de qué tipo. Hay que mantener un diccionario externo que dice que ese topic es temperatura en °C. Si el diccionario se desincroniza del equipo, los datos se interpretan mal en silencio.</div></div>
+<div class="card"><div class="h">4. El que llega tarde no ve nada</div><div class="d">En MQTT puro, un consumidor que se suscribe después no recibe nada hasta que haya un próximo cambio. No tiene forma de pedir "el estado completo actual" de la planta.</div></div>
+</div>
+
+<div class="box"><span class="t">Por qué esto se siente conocido</span>
+Es exactamente el dolor que ya diagnosticaste en terreno: sistemas que guardan su dato por su cuenta, nadie sabe si una señal está caída, y armar un tablero que cruce dos fuentes exige trabajo a mano. Sparkplug es una de las respuestas que la industria ya estandarizó a esos cuatro problemas.</div>
+
+<p class="src">Fuente: scadaprotocols.com ("What is Sparkplug B"), sensorsedgehub.com; contraste con la sección de diagnóstico de tus presentaciones CONECTA.</p>
+
+</section>
+<section id="s3">
+<div class="kicker">Bloque 3</div>
+<h2>Historia: quién lo hizo y por qué importa</h2>
+
+<p class="lead">Un dato que vale oro en una reunión: Sparkplug no lo inventó un comité. Lo escribió uno de los creadores de MQTT.</p>
+
+<table>
+<tr><th>Momento</th><th>Qué pasó</th></tr>
+<tr><td><b>~2000</b></td><td>Arlen Nipper, junto a Andy Stanford-Clark, crea MQTT en una empresa de telemetría industrial (Arcom). O sea: MQTT nació <i>para</i> industria, no para web.</td></tr>
+<tr><td><b>2013</b></td><td>Nipper y Cirrus Link propone un esquema de codificación sobre MQTT para darle estado y estructura. Basado en el protobuf de Eclipse Kura.</td></tr>
+<tr><td><b>~2014</b></td><td>Se ve que Kura era muy limitado (sin metadata, sin tipos complejos). Nace <b>Sparkplug B</b> con métricas ricas, aliases, datasets y templates. La versión A queda deprecada.</td></tr>
+<tr><td><b>2020</b></td><td>Sparkplug A formalmente discontinuada para despliegues nuevos.</td></tr>
+<tr><td><b>2022</b></td><td>Sparkplug 3.0 se convierte en especificación oficial de la Eclipse Foundation; se publica el programa de compatibilidad (TCK).</td></tr>
+<tr><td><b>hoy</b></td><td>Es la semántica de referencia del UNS en manufactura moderna. Soportada nativamente por Ignition, EMQX, HiveMQ, ThingsBoard, AVEVA, y por pasarelas industriales de múltiples marcas.</td></tr>
+</table>
+
+<div class="box violet"><span class="t">El punto para una reunión</span>
+Quien inventó MQTT lo pensó para industria. Sparkplug es su autor volviendo a cerrar las brechas que MQTT dejó abiertas a propósito. Eso lo convierte en el estándar <i>de facto</i> del UNS, no en una moda de un fabricante. Y está bajo Eclipse Foundation: nadie lo controla en exclusiva — importante cuando un cliente teme quedarse amarrado a un proveedor.</div>
+
+<p class="src">Fuente: softwaretoolbox.com ("What is Sparkplug B?"), github.com/eclipse-sparkplug/sparkplug, sparkplug.eclipse.org.</p>
+
+</section>
+<section id="s4">
+<div class="kicker">Bloque 4</div>
+<h2>El namespace: cinco segmentos, ninguno improvisado</h2>
+
+<p class="lead">Este es el corazón visible de Sparkplug. La dirección del topic no la diseña nadie: la fija la spec. Por eso un consumidor cualquiera puede leer topics de un equipo que nunca vio.</p>
+
+<div class="eq" style="font-size:15px;text-align:center;padding:20px">
+<span style="color:#7c3aed;font-weight:700">spBv1.0</span> / <span style="color:#2563eb;font-weight:700">group_id</span> / <span style="color:#16a34a;font-weight:700">message_type</span> / <span style="color:#d97706;font-weight:700">edge_node_id</span> / [<span style="color:#0891b2;font-weight:700">device_id</span>]
+</div>
+
+<table>
+<tr><th>Segmento</th><th>Qué identifica</th><th>Ejemplo</th></tr>
+<tr><td><code>spBv1.0</code></td><td>Versión y esquema de codificación. Fijo. Si lo ves, sabes que el payload es protobuf Sparkplug B.</td><td><code>spBv1.0</code></td></tr>
+<tr><td><code>group_id</code></td><td>Agrupación lógica de nodos. Normalmente la planta o la línea. Aísla datos entre sitios.</td><td><code>GPE</code></td></tr>
+<tr><td><code>message_type</code></td><td>Uno de los 9 tipos. Indica dirección y fase del ciclo de vida.</td><td><code>DDATA</code></td></tr>
+<tr><td><code>edge_node_id</code></td><td>La pasarela de borde (el EoN). Es quien publica o gestiona.</td><td><code>Trueno_Edge</code></td></tr>
+<tr><td><code>device_id</code></td><td>Opcional. El equipo concreto detrás del nodo. Si falta, el mensaje es a nivel de nodo.</td><td><code>U1</code></td></tr>
+</table>
+
+<h3>Ejemplo completo, lado a lado con lo tuyo</h3>
+<pre><span class="c"># Sparkplug B canónico</span>
+spBv1.0/<span style="color:#2563eb">GPE</span>/<span style="color:#16a34a">DDATA</span>/<span style="color:#d97706">Trueno_Edge</span>/<span style="color:#0891b2">U1</span>
+
+<span class="c"># Tu namespace Tier0 actual (UNS propio, sin Sparkplug)</span>
+<span style="color:#2563eb">GPE</span>/<span style="color:#0891b2">Trueno</span>/Central/Metric/potencia_activa_MW</pre>
+
+<p>Fíjate en la diferencia de <b>intención</b>. Tu UNS dice <i>dónde está el dato en el árbol</i>. Sparkplug dice <i>dónde está, de qué equipo, y qué tipo de mensaje es</i>. Ambas son jerárquicas, pero Sparkplug codifica además la <b>semántica del ciclo de vida</b> en el propio topic (<code>DDATA</code> vs <code>DDEATH</code> vs <code>DCMD</code>). Eso último es lo que tu UNS no tiene.</p>
+
+<div class="svgwrap"><div class="svgwrap"><svg viewBox="0 0 1000 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Los cinco segmentos del topic Sparkplug B"><defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#64748b"/></marker>
+<marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#2563eb"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#16a34a"/></marker>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#dc2626"/></marker>
+<marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#7c3aed"/></marker>
+</defs>
+<rect x="30" y="30" width="180" height="66" rx="8" fill="#1a1030" stroke="#7c3aed" stroke-width="1.5"/><text x="120" y="58" font-size="15" fill="#c4b5fd" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">spBv1.0</text><text x="120" y="80" font-size="10.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">versión y esquema</text>
+<rect x="225" y="30" width="180" height="66" rx="8" fill="#0f2244" stroke="#2563eb" stroke-width="1.5"/><text x="315" y="58" font-size="15" fill="#93c5fd" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">group_id</text><text x="315" y="80" font-size="10.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">planta / sitio</text>
+<rect x="420" y="30" width="180" height="66" rx="8" fill="#0f2a1a" stroke="#16a34a" stroke-width="1.5"/><text x="510" y="58" font-size="15" fill="#86efac" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">message_type</text><text x="510" y="80" font-size="10.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">de los 9 tipos</text>
+<rect x="615" y="30" width="180" height="66" rx="8" fill="#2a1a08" stroke="#d97706" stroke-width="1.5"/><text x="705" y="58" font-size="15" fill="#fbbf24" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">edge_node_id</text><text x="705" y="80" font-size="10.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">la pasarela</text>
+<rect x="810" y="30" width="160" height="66" rx="8" fill="#0a2833" stroke="#0891b2" stroke-width="1.5"/><text x="890" y="58" font-size="15" fill="#67e8f9" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">device_id</text><text x="890" y="80" font-size="10.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">opcional</text>
+<text x="500" y="140" font-size="12.5" fill="#cbd5e1" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Un suscriptor puede pedir spBv1.0/+/NBIRTH/# y descubrir TODOS los nodos a medida que aparecen</text><text x="500" y="162" font-size="12.5" fill="#64748b" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">sin configuración previa, sin diccionario de tags, sin acordar nada con el fabricante</text>
+<line x1="200" y1="63" x2="222" y2="63" stroke="#64748b" stroke-width="1.5"/><line x1="395" y1="63" x2="417" y2="63" stroke="#64748b" stroke-width="1.5"/><line x1="590" y1="63" x2="612" y2="63" stroke="#64748b" stroke-width="1.5"/><line x1="785" y1="63" x2="807" y2="63" stroke="#64748b" stroke-width="1.5"/>
+</svg></div></div>
+
+<div class="box warn"><span class="t">Trampa de sintaxis</span>
+Los caracteres <code>+</code>, <code>#</code> y <code>/</code> están <b>reservados</b> por MQTT para comodines y separadores. No se pueden usar dentro de un <code>group_id</code>, <code>node_id</code> ni <code>device_id</code>. Si el nombre de tu planta trae esos caracteres, hay que normalizarlo antes o el topic queda mal formado.</div>
+
+<p class="src">Fuente: Sparkplug 3.0 spec, sección Topic Namespace; thingsboard.io Sparkplug API; litmus.io.</p>
+
+</section>
+<section id="s5">
+<div class="kicker">Bloque 5</div>
+<h2>Los nueve tipos de mensaje</h2>
+
+<p class="lead">Nueve mensajes, que en realidad son tres familias: nacimiento, datos, y comandos/estado. Memorizar el cuadro es tener media spec en la cabeza.</p>
+
+<table>
+<tr><th>Tipo</th><th>Dirección</th><th>QoS</th><th>Qué hace</th></tr>
+<tr><td><code>NBIRTH</code></td><td>Nodo → broker</td><td>0</td><td><b>Nacimiento del nodo.</b> Primer mensaje al conectar. Declara TODAS las métricas del nodo con nombre, tipo, unidad, alias y valor inicial.</td></tr>
+<tr><td><code>DBIRTH</code></td><td>Nodo → broker</td><td>0</td><td><b>Nacimiento de dispositivo.</b> Por cada equipo detrás del nodo, declara sus métricas completas.</td></tr>
+<tr><td><code>NDATA</code></td><td>Nodo → broker</td><td>0</td><td>Datos del nodo. Solo las métricas que cambiaron (rbe).</td></tr>
+<tr><td><code>DDATA</code></td><td>Nodo → broker</td><td>0</td><td>Datos del dispositivo. Solo los cambios.</td></tr>
+<tr><td><code>NDEATH</code></td><td>Broker (LWT)</td><td>1</td><td><b>Muerte del nodo.</b> El broker la publica solo, si el nodo se cae sin avisar.</td></tr>
+<tr><td><code>DDEATH</code></td><td>Nodo → broker</td><td>0</td><td>Muerte de un dispositivo. El nodo avisa que ese equipo quedó offline.</td></tr>
+<tr><td><code>NCMD</code></td><td>Host → nodo</td><td>1</td><td>Comando de escritura al nodo.</td></tr>
+<tr><td><code>DCMD</code></td><td>Host → dispositivo</td><td>1</td><td>Comando de escritura a un dispositivo.</td></tr>
+<tr><td><code>STATE</code></td><td>Host ↔ broker</td><td>1</td><td>Estado de la aplicación primaria (el SCADA/host). Es el único a QoS 1 obligatorio.</td></tr>
+</table>
+
+<div class="box"><span class="t">Tres detalles que se pasan por alto</span>
+<ol style="margin-bottom:0">
+<li><b>Los BIRTH van a QoS 0.</b> Suena contraproducente publicar el mensaje más importante "sin garantía", pero la spec lo hace a propósito: el nacimiento se reenvía en cada reconexión, así que la propia reconexión es el mecanismo de recuperación. El único QoS 1 obligatorio es el <code>NDEATH</code> (como will) y el <code>STATE</code>.</li>
+<li><b>BIRTH y DATA llevan secuencia.</b> Hay un <code>seq</code> que va de 0 a 255 y da la vuelta. Si el consumidor ve un salto, sabe que perdió mensajes y puede pedir un renacimiento.</li>
+<li><b>Los mensajes nuevos de 3.0.</b> La versión 3.0 agregó <code>NRECORD</code> y <code>DRECORD</code> para datos históricos en bloque (registros, no telemetría en vivo).</li>
+</ol></div>
+
+<h3>Las tres familias, de un vistazo</h3>
+<div class="grid3">
+<div class="card"><div class="h" style="color:#4ade80">NACIMIENTO</div><div class="d"><code>NBIRTH</code> · <code>DBIRTH</code><br>El equipo se presenta y declara todo lo que medirá. Ocurre una vez al conectar.</div></div>
+<div class="card"><div class="h" style="color:#93c5fd">DATOS</div><div class="d"><code>NDATA</code> · <code>DDATA</code><br>Los cambios, ya con el esquema conocido. Es el 95% del tráfico.</div></div>
+<div class="card"><div class="h" style="color:#fbbf24">CONTROL</div><div class="d"><code>NCMD</code> · <code>DCMD</code> · <code>STATE</code><br>Escritura hacia los equipos y estado del host. Aquí está el riesgo.</div></div>
+</div>
+
+</section>
+<section id="s6">
+<div class="kicker">Bloque 6</div>
+<h2>Nacimiento y muerte: el modelo de estado</h2>
+
+<p class="lead">Si tuvieras que llevarte una sola idea de toda la clase, es esta. Sparkplug convierte el <i>estado</i> de los equipos en parte del protocolo, en vez de dejarlo como una convención que cada proyecto reinventa.</p>
+
+<h3>El problema de raíz</h3>
+<p>MQTT es <b>sin estado a propósito</b>. El broker sabe si un cliente está conectado (por keep-alive y Last Will), pero no sabe qué publica ese cliente ni cuáles son sus valores actuales. Consecuencia concreta: si un equipo se cae y su último mensaje quedó retenido, el tablero del operador sigue mostrando ese valor como si fuera actual. Puede estar mostrando un número de hace tres días.</p>
+<p>En una subestación eso no es un detalle cosmético: es la diferencia entre "la unidad está a 5 MW" y "la unidad está a 5 MW <i>según el último dato que llegó, y no sabemos si eso fue ahora o el martes</i>".</p>
+
+<h3>La solución: dos mensajes emparejados</h3>
+<div class="grid2">
+<div class="card" style="border-left:4px solid #16a34a"><div class="h">NACIMIENTO (NBIRTH / DBIRTH)</div><div class="d">Al conectarse, el equipo publica una <b>autopresentación completa</b>: cada métrica que sabe medir, con nombre, tipo de dato, unidad, alias y valor actual. Cualquier consumidor que se suscriba después recibe esto y arma la foto completa de la planta sin preguntarle a nadie.</div></div>
+<div class="card" style="border-left:4px solid #dc2626"><div class="h">MUERTE (NDEATH / DDEATH)</div><div class="d">Al conectarse, el nodo <b>registra su mensaje de muerte como Last Will (LWT)</b> en el broker. Si el nodo se cae sin avisar —corte de red, corte de luz— el broker publica la muerte <i>en su nombre</i>. Todos los suscriptores saben en ese instante que ese equipo y sus dispositivos quedaron offline, y que sus últimos valores son <b>dato viejo, no dato vivo</b>.</div></div>
+</div>
+
+<div class="svgwrap"><div class="svgwrap"><svg viewBox="0 0 1000 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ciclo de vida de un nodo Sparkplug: nacimiento, datos, muerte, renacimiento"><defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#64748b"/></marker>
+<marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#2563eb"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#16a34a"/></marker>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#dc2626"/></marker>
+<marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#7c3aed"/></marker>
+</defs>
+<text x="500" y="26" font-size="13" fill="#93c5fd" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">CICLO DE VIDA DE UN NODO</text>
+<line x1="60" y1="32" x2="940" y2="32" stroke="#1e293b" stroke-width="1"/>
+<rect x="40" y="60" width="180" height="84" rx="9" fill="#0f2a1a" stroke="#16a34a" stroke-width="1.5"/><text x="130" y="88" font-size="12.5" fill="#4ade80" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">1. CONECTA</text><text x="130" y="110" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">registra su LWT</text><text x="130" y="128" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">en el broker</text>
+<line x1="224" y1="102" x2="266" y2="102" stroke="#16a34a" stroke-width="2" marker-end="url(#ag)"/>
+<rect x="270" y="60" width="200" height="84" rx="9" fill="#0f2a1a" stroke="#16a34a" stroke-width="1.5"/><text x="370" y="88" font-size="12.5" fill="#4ade80" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">2. NBIRTH</text><text x="370" y="110" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">declara TODO</text><text x="370" y="128" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">+ DBIRTH por equipo</text>
+<line x1="474" y1="102" x2="516" y2="102" stroke="#16a34a" stroke-width="2" marker-end="url(#ag)"/>
+<rect x="520" y="60" width="200" height="84" rx="9" fill="#0f2244" stroke="#2563eb" stroke-width="1.5"/><text x="620" y="88" font-size="12.5" fill="#93c5fd" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">3. NDATA/DDATA</text><text x="620" y="110" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">solo lo que cambia</text><text x="620" y="128" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">(report by exception)</text>
+<line x1="724" y1="102" x2="766" y2="102" stroke="#dc2626" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="770" y="60" width="190" height="84" rx="9" fill="#2a0f0f" stroke="#dc2626" stroke-width="1.5"/><text x="865" y="88" font-size="12.5" fill="#fca5a5" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace">4. NDEATH</text><text x="865" y="110" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">el broker avisa</text><text x="865" y="128" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">la caída</text>
+<line x1="865" y1="150" x2="865" y2="192" stroke="#16a34a" stroke-width="2" marker-end="url(#ag)" stroke-dasharray="5,4"/><text x="920" y="176" font-size="11" fill="#4ade80" font-weight="600" text-anchor="middle" font-family="Inter,system-ui,sans-serif">reconecta</text><line x1="865" y1="196" x2="130" y2="196" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5,4"/><line x1="130" y1="196" x2="130" y2="150" stroke="#16a34a" stroke-width="2" marker-end="url(#ag)"/><text x="500" y="220" font-size="12" fill="#64748b" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">ciclo reinicia: nuevo NBIRTH con el estado completo</text>
+<rect x="40" y="246" width="460" height="86" rx="9" fill="#182234" stroke="#334155" stroke-width="1.5"/><text x="270" y="272" font-size="13" fill="#fff" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Lo que gana el consumidor</text><text x="270" y="296" font-size="11.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Sabe qué equipos están arriba, qué métricas publica cada uno,</text><text x="270" y="315" font-size="11.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">y cuáles valores son actuales y cuáles quedaron viejos.</text>
+<rect x="520" y="246" width="440" height="86" rx="9" fill="#182234" stroke="#334155" stroke-width="1.5"/><text x="740" y="272" font-size="13" fill="#fff" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">Lo que garantiza el protocolo</text><text x="740" y="296" font-size="11.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">nada de esto hay que programarlo a mano: viene por spec</text><text x="740" y="315" font-size="11.5" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">(a diferencia de un UNS casero con JSON)</text>
+</svg></div></div>
+
+<h3>El detalle fino: bdSeq</h3>
+<p>Junto al nacimiento viaja un contador llamado <code>bdSeq</code> (birth/death sequence). Se incrementa en cada ciclo de vida del nodo. Sirve para dos cosas: detectar que un nodo se <b>reinició</b> (aunque no haya cambiado nada más), y distinguir dos nacimientos del mismo equipo. Es el equivalente a un número de sesión.</p>
+
+<div class="box yes"><span class="t">Por qué esto es la joya de Sparkplug</span>
+Un consumidor que se conecta por primera vez a un broker Sparkplug obtiene la foto completa y actual de la planta <b>sin hacer una sola pregunta</b>. Y nunca confunde un valor congelado con uno válido. En MQTT puro, todo ese mecanismo hay que diseñarlo, documentarlo y mantenerlo a mano — y casi siempre se hace a medias.</div>
+
+<p class="src">Fuente: Sparkplug 3.0 spec sección Operational Behavior; captiatechnology.com; merobix.com; scadaprotocols.com.</p>
+
+</section>
+<section id="s7">
+<div class="kicker">Bloque 7</div>
+<h2>El payload: protobuf, no JSON</h2>
+
+<p class="lead">Acá está la decisión técnica que más sorprende a la gente que viene de JSON. El contenido de un mensaje Sparkplug <b>no es texto</b>: es binario, definido por un esquema formal de Protocol Buffers.</p>
+
+<h3>Por qué binario y no JSON</h3>
+<div class="grid3">
+<div class="card"><div class="num-big">-60~75%</div><div class="d">Tamaño del payload protobuf frente al JSON equivalente, para los mismos datos.</div></div>
+<div class="card"><div class="num-big" style="color:#4ade80">✓ tipado</div><div class="d">Cada campo tiene tipo declarado en el esquema. No hay ambigüedad de parseo ni "¿esto es número o texto?".</div></div>
+<div class="card"><div class="num-big" style="color:#fbbf24">✗ legible</div><div class="d">La contra: en la red no se lee a ojo. Necesitas una herramienta que sepa Sparkplug para decodificarlo.</div></div>
+</div>
+
+<h3>El esquema (simplificado de la spec 3.0)</h3>
+<pre><span class="k">message</span> <span class="f">Payload</span> {
+  <span class="k">optional</span> <span class="k">uint64</span>   timestamp = <span class="n">1</span>;   <span class="c">// ms desde epoch</span>
+  <span class="k">repeated</span> <span class="f">Metric</span>   metrics   = <span class="n">2</span>;   <span class="c">// la lista de métricas</span>
+  <span class="k">optional</span> <span class="k">uint64</span>   seq       = <span class="n">3</span>;   <span class="c">// 0..255, da la vuelta</span>
+  <span class="k">optional</span> <span class="k">bytes</span>    uuid      = <span class="n">4</span>;   <span class="c">// identificador de sesión</span>
+  <span class="k">optional</span> <span class="f">Template</span> template  = <span class="n">5</span>;   <span class="c">// tipos definidos por usuario</span>
+}
+
+<span class="k">message</span> <span class="f">Metric</span> {
+  <span class="k">optional</span> <span class="k">string</span>  name       = <span class="n">1</span>;   <span class="c">// "potencia_activa_MW"</span>
+  <span class="k">optional</span> <span class="k">uint64</span>  alias      = <span class="n">2</span>;   <span class="c">// atajo numérico</span>
+  <span class="k">optional</span> <span class="k">uint64</span>  timestamp  = <span class="n">3</span>;
+  <span class="k">optional</span> <span class="k">uint32</span>  datatype   = <span class="n">4</span>;   <span class="c">// Float, Int32, String...</span>
+  <span class="k">optional</span> <span class="k">bool</span>    is_historical = <span class="n">5</span>;
+  <span class="k">optional</span> <span class="k">bool</span>    is_null    = <span class="n">6</span>;   <span class="c">// el valor falta</span>
+  <span class="k">optional</span> <span class="f">PropertySet</span> properties = <span class="n">8</span>; <span class="c">// metadata: unidad, rango...</span>
+  <span class="c">// oneof value { int, long, float, double, bool, string, ... }</span>
+}</pre>
+
+<h3>Cómo se ve una métrica, en las dos notaciones</h3>
+<div class="grid2">
+<div class="card"><div class="h" style="color:#fbbf24">JSON (lo que usas hoy)</div><pre style="margin:10px 0 0;font-size:12px">{ <span class="s">"v"</span>: <span class="n">5.1</span>, <span class="s">"u"</span>: <span class="s">"MW"</span>, <span class="s">"q"</span>: <span class="n">100</span>, <span class="s">"t"</span>: <span class="n">1790614671786</span> }</pre><div class="d" style="margin-top:9px">~48 bytes. Legible, pero adivina el tipo y no lleva nombre de la métrica.</div></div>
+<div class="card"><div class="h" style="color:#4ade80">Sparkplug (protobuf)</div><pre style="margin:10px 0 0;font-size:12px"><span class="c">name</span>: <span class="s">"P_MW"</span>
+<span class="c">datatype</span>: <span class="n">Float</span>
+<span class="c">alias</span>: <span class="n">7</span>
+<span class="c">value</span>: <span class="n">5.1</span>
+<span class="c">properties</span>: { eng_unit: <span class="s">"MW"</span>,
+              eng_low: <span class="n">0</span>, eng_high: <span class="n">30</span> }</pre><div class="d" style="margin-top:9px">Autodescriptivo: dice qué es, de qué tipo, en qué unidad, con qué rango. Y en la red ocupa mucho menos.</div></div>
+</div>
+
+<h3>Los tipos de dato que maneja</h3>
+<p>La spec define 19 tipos formales. Los que vas a ver siempre:</p>
+<p>
+<span class="pill">BOOL</span><span class="pill">INT32</span><span class="pill">UINT32</span><span class="pill">INT64</span><span class="pill">UINT64</span><span class="pill">FLOAT</span><span class="pill">DOUBLE</span><span class="pill">STRING</span><span class="pill">DATETIME</span><span class="pill">BYTES</span>
+</p>
+<div class="box warn"><span class="t">Trampa real de interoperabilidad</span>
+Cada librería de origen numera los tipos a su manera. Un código de datatype de otro sistema (por ejemplo el 8 de una marca de PLC para "entero doble") puede no ser el 8 de Sparkplug. Si asignas el tipo equivocado, el consumidor rechaza la métrica con <code>Invalid datatype</code> o crea un tag con un tipo que no corresponde. <b>Hay que remapear los tipos explícitamente</b>, no confiar en que los números coinciden.</div>
+
+<h3>PropertySet: la metadata va en el nacimiento</h3>
+<p>La metadata rica — unidad de ingeniería, rango mínimo/máximo, descripción, versión de firmware — viaja <b>solo en el mensaje de nacimiento</b>, dentro del <code>PropertySet</code> de cada métrica. Después, los mensajes de datos llevan únicamente valor y timestamp. Esto es clave: es lo que hace que los mensajes de datos sean tan chicos.</p>
+<pre><span class="c"># Propiedades reservadas por la spec (nombre exacto)</span>
+eng_unit, eng_low, eng_high, description, vendor, class, Quality
+<span class="c"># y propiedades propias con el prefijo del namespace:</span>
+X-MiEmpresa-Zona: <span class="s">"Araucania"</span></pre>
+<div class="box warn"><span class="t">Cómo está armado el PropertySet (rompe a casi todos los primerizos)</span>
+No es un diccionario plano clave→valor. Son <b>dos listas paralelas</b>: una de nombres (<code>keys</code>) y otra de valores tipados (<code>values</code>), del mismo largo, donde el elemento N de una calza con el elemento N de la otra. Si los largos no coinciden, el payload queda inválido. Además cada valor necesita su propio campo de <b>tipo</b> seteado, o el consumidor no sabe cómo leerlo.</div>
+
+<p class="src">Fuente: eclipse-sparkplug/sparkplug (protobuf de la spec 3.0); deepwiki "Payload Encoding"; industrialmonitordirect (PropertySet, hex real de un NBIRTH); softwaretoolbox.</p>
+
+</section>
+<section id="s8">
+<div class="kicker">Bloque 8</div>
+<h2>Aliases y report-by-exception: la economía del ancho de banda</h2>
+
+<p class="lead">Dos mecanismos simples que juntos explican por qué Sparkplug se usa tanto en enlaces caros: celular, satélite, radio. Y por qué una planta con miles de señales no ahoga la red.</p>
+
+<h3>Mecanismo 1 — Alias: el nombre largo viaja una sola vez</h3>
+<p>Los nombres de métricas industriales son largos: <code>Molienda_Area1/Linea1/Celda1/Tension_Alimentacion</code> son ~55 caracteres. Repetirlos en cada mensaje, en un tag que se actualiza cada segundo, es purismo caro. Sparkplug hace esto: en el nacimiento, cada métrica recibe un <b>alias</b> numérico junto a su nombre. Desde ahí, los mensajes de datos mandan <b>solo el alias</b>.</p>
+
+<div class="svgwrap"><div class="svgwrap"><svg viewBox="0 0 1000 285" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alias: el nombre viaja una vez, el número viaja siempre"><defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#64748b"/></marker>
+<marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#2563eb"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#16a34a"/></marker>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#dc2626"/></marker>
+<marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#7c3aed"/></marker>
+</defs>
+<text x="500" y="24" font-size="12.5" fill="#93c5fd" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono,monospace" letter-spacing="1">UNA VEZ (nacimiento)   vs   CADA SEGUNDO (datos)</text>
+<rect x="40" y="50" width="430" height="120" rx="9" fill="#0f2a1a" stroke="#16a34a" stroke-width="1.5"/><text x="255" y="78" font-size="13" fill="#4ade80" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">DBIRTH — declara el esquema completo</text><text x="255" y="104" font-size="11.5" fill="#e2e8f0" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">name: &quot;Molienda/Linea1/Tension_Alim&quot;</text><text x="255" y="124" font-size="11.5" fill="#e2e8f0" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">alias: 7</text><text x="255" y="144" font-size="11.5" fill="#e2e8f0" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">datatype: Float  eng_unit: &quot;V&quot;</text><text x="255" y="163" font-size="11" fill="#64748b" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">~90 bytes, una sola vez</text>
+<rect x="530" y="50" width="430" height="120" rx="9" fill="#0f2244" stroke="#2563eb" stroke-width="1.5"/><text x="745" y="78" font-size="13" fill="#93c5fd" font-weight="700" text-anchor="middle" font-family="Inter,system-ui,sans-serif">DDATA — solo los cambios</text><text x="745" y="104" font-size="11.5" fill="#e2e8f0" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">{ alias: 7, value: 23150.4 }</text><text x="745" y="124" font-size="11.5" fill="#e2e8f0" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">{ alias: 8, value: 49.98    }</text><text x="745" y="144" font-size="11" fill="#94a3b8" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif"></text><text x="745" y="163" font-size="11" fill="#64748b" font-weight="400" text-anchor="middle" font-family="IBM Plex Mono,monospace">~14 bytes, repetido cada vez</text>
+<line x1="475" y1="110" x2="525" y2="110" stroke="#2563eb" stroke-width="2" marker-end="url(#ab)"/><text x="500" y="100" font-size="10" fill="#93c5fd" font-weight="600" text-anchor="middle" font-family="Inter,system-ui,sans-serif">después</text>
+<rect x="160" y="200" width="680" height="60" rx="9" fill="#182234" stroke="#334155" stroke-width="1.5"/><text x="500" y="225" font-size="12.5" fill="#fbbf24" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">El consumidor necesita haber visto el DBIRTH para entender el DDATA</text><text x="500" y="246" font-size="11.5" fill="#64748b" font-weight="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif">El stream solo tiene sentido como conjunto. No es un dato suelto.</text>
+</svg></div></div>
+
+<div class="box no"><span class="t">Consecuencia que hay que tener presente</span>
+Si un consumidor se suscribe <b>a mitad de camino</b> y solo ve <code>DDATA</code> con alias, no tiene idea de qué métrica es el alias <code>7</code>. Los consumidores serios cachean el <code>DBIRTH</code> y lo usan de diccionario. Si llega un alias que no está en el esquema, hay que loguearlo: significa que el nodo cambió sin anunciar nacimiento.</div>
+
+<h3>Mecanismo 2 — Report by exception (RBE)</h3>
+<p>Después del nacimiento, <b>solo viaja la métrica que cambió</b>. No se reenvía la lista completa en cada ciclo. Un caudal que lleva una hora estable en el mismo valor no genera ni un mensaje.</p>
+
+<table>
+<tr><th>Arquitectura</th><th>Qué se transmite</th><th>Efecto</th></tr>
+<tr><td>Polling clásico</td><td>Todas las señales, cada ciclo, siempre</td><td>Tráfico constante e innecesario</td></tr>
+<tr><td>Sparkplug B</td><td>Solo la señal que cambió, con alias</td><td><b>80–95% menos</b> tráfico que polling</td></tr>
+</table>
+
+<div class="box"><span class="t">La cuenta que importa</span>
+En un despliegue real documentado (60 pozos petroleros sobre LTE-M, tres operadores celulares, 12 meses): Sparkplug B movió <b>4,1 GB/mes</b> para toda la flota, contra una estimación de <b>36–40 GB/mes</b> con OPC-UA binario. Reducción de banda del <b>~89%</b>, con latencia extremo a extremo de <b>380 ms</b>. Para un ítem de una sola escritura, Sparkplug B resultó <b>~35x más chico</b> que OPC-UA binario.</div>
+
+<p class="src">Fuente: industrialmonitordirect (deployment Oil &amp; Gas, 60 wellheads, logs de producción); sensorsedgehub; i-FLOW (vía sensorsedgehub).</p>
+
+</section>
+<section id="s9">
+<div class="kicker">Bloque 9</div>
+<h2>La secuencia completa, paso a paso</h2>
+
+<p class="lead">Junta los ocho bloques anteriores en una sola traza. Esto es lo que pasa en el cable desde que prendes la pasarela hasta que el tablero muestra el dato.</p>
+
+<pre><span class="c"># ─── 1. El nodo EoN se conecta al broker y registra su testamento ───</span>
+CONNECT  client="trueno_edge"  will_topic="spBv1.0/GPE/NDEATH/Trueno_Edge"  will_qos=1
+
+<span class="c"># ─── 2. Publica su NACIMIENTO: todo lo que el nodo sabe medir ───</span>
+PUBLISH  spBv1.0/GPE/NBIRTH/Trueno_Edge        qos=0
+  <span class="c"># payload protobuf:</span>
+  timestamp: 1790614671786
+  seq: 0
+  bdSeq: 0
+  metrics: [ cpu_load, memoria_libre, ... ]     <span class="c"># métricas del nodo</span>
+
+<span class="c"># ─── 3. Publica el NACIMIENTO de cada dispositivo detrás ───</span>
+PUBLISH  spBv1.0/GPE/DBIRTH/Trueno_Edge/U1     qos=0
+  metrics: [
+    { name:"P_MW",       alias:10, datatype:Float, value:5.1,
+      properties:{ eng_unit:"MW", eng_low:0, eng_high:8 } },
+    { name:"caudal_m3s", alias:11, datatype:Float, value:7.8,
+      properties:{ eng_unit:"m3/s", eng_low:0, eng_high:12 } },
+    { name:"estado_u1",  alias:12, datatype:Boolean, value:true }
+  ]
+
+<span class="c"># ─── 4. A partir de aquí, solo los cambios (report by exception) ───</span>
+PUBLISH  spBv1.0/GPE/DDATA/Trueno_Edge/U1      qos=0
+  seq: 1
+  metrics: [ { alias:10, value:5.3 } ]          <span class="c"># solo la que cambió</span>
+
+PUBLISH  spBv1.0/GPE/DDATA/Trueno_Edge/U1      qos=0
+  seq: 2
+  metrics: [ { alias:10, value:5.4 }, { alias:11, value:7.9 } ]
+
+<span class="c"># ─── 5a. Si el nodo avisa que se va ordenadamente ───</span>
+PUBLISH  spBv1.0/GPE/NDEATH/Trueno_Edge        qos=1
+
+<span class="c"># ─── 5b. Si se cae sin avisar (corte de red) ───</span>
+<span class="c"># El BROKER publica el NDEATH en su nombre, tomado del LWT registrado en el paso 1.</span>
+<span class="c"># Todos los suscriptores saben al instante que Trueno_Edge y sus equipos están offline.</span>
+
+<span class="c"># ─── 6. Si necesita escribir hacia el equipo ───</span>
+PUBLISH  spBv1.0/GPE/DCMD/Trueno_Edge/U1       qos=1
+  metrics: [ { name:"cmd_arranque", value:true } ]</pre>
+
+<div class="box"><span class="t">Lo que un observador ve, sin preguntar nada</span>
+Un SCADA que se conecta en cualquier momento suscribe <code>spBv1.0/GPE/#</code>, recibe los nacimientos retenidos y arma solo el árbol completo: qué nodos existen, qué dispositivos cuelgan de cada uno, y qué métrica es cada alias. Después, con <code>NDEATH</code>, sabe exactamente cuándo algo se cae. Nada de esto lo configura nadie a mano.</div>
+
+<div class="box violet"><span class="t">Dato de implementación que importa</span>
+ETAPA 3.0 del protocolo define dos mensajes adicionales, <code>NRECORD</code> y <code>DRECORD</code>, para enviar <b>datos históricos por bloque</b> (no telemetría en vivo). Sirve para rellenar el hueco de un corte: cuando la pasarela reconecta, puede mandar lo que almacenó offline como registros, en vez de una ráfaga de datos con timestamp viejo.</div>
+
+</section>
+<section id="s10">
+<div class="kicker">Bloque 10</div>
+<h2>QoS, retain y las trampas que cuestan horas</h2>
+
+<p class="lead">La spec es estricta en cosas que parecen menores. Los errores en estos puntos producen fallas que no se ven en la prueba de escritorio y aparecen en planta.</p>
+
+<h3>QoS: cada mensaje tiene su nivel fijado, no es elección libre</h3>
+<table>
+<tr><th>Mensaje</th><th>QoS</th><th>Motivo</th></tr>
+<tr><td><code>NBIRTH</code>, <code>DBIRTH</code>, <code>NDATA</code>, <code>DDATA</code>, <code>DDEATH</code></td><td><b>0</b></td><td>Fire-and-forget. La recuperación no es por reenvío, sino por el renacimiento en cada reconexión.</td></tr>
+<tr><td><code>NDEATH</code> (como LWT)</td><td><b>1</b></td><td>El broker debe garantizar que la notificación de muerte llegue.</td></tr>
+<tr><td><code>NCMD</code>, <code>DCMD</code></td><td><b>1</b></td><td>Un comando no puede perderse silenciosamente.</td></tr>
+<tr><td><code>STATE</code></td><td><b>1</b></td><td>Es el único mensaje que la spec exige que llegue sí o sí.</td></tr>
+</table>
+<p>Retain: los BIRTH no llevan retain (QoS 0 y retain false). Es un error frecuente dejar retain puesto "por si acaso" — el nacimiento se republica en cada reconexión, no necesita quedarse guardado.</p>
+
+<h3>Las seis trampas que están documentadas por quienes ya las sufrieron</h3>
+<table>
+<tr><th>#</th><th>Trampa</th><th>Síntoma / costo</th></tr>
+<tr><td>1</td><td><b>Olvidar el LWT (NDEATH)</b></td><td>Nunca llega la muerte. El tablero muestra equipos fantasma para siempre, con valores congelados que parecen vivos. Es la trampa #1 y la más caras de detectar.</td></tr>
+<tr><td>2</td><td><b>seq no monotónico</b></td><td>Si la secuencia no incrementa correctamente (sobre todo tras reinicios), el consumidor detecta "pérdidas" que no existieron y pide renacimientos en bucle.</td></tr>
+<tr><td>3</td><td><b>No usar alias</b></td><td>Funciona, pero se paga el ancho de banda completo repitiendo el nombre largo en cada mensaje. En enlaces celulares se nota en la factura.</td></tr>
+<tr><td>4</td><td><b>Suscriptor sin modelo de estado</b></td><td>Ve <code>DDATA</code> con alias sueltos y no sabe qué métrica es. Hay que consumir los BIRTH primero, siempre.</td></tr>
+<tr><td>5</td><td><b>Mezclar versiones 2.0 y 3.0</b></td><td>El puente entre versiones <b>no está definido por la spec</b>. Es una fuente conocida de errores "Unknown Metric" en el motor MQTT de Ignition.</td></tr>
+<tr><td>6</td><td><b>Aliases duplicados o inconsistentes</b></td><td>Los alias deben ser únicos dentro de un nodo. Si colisionan, dos métricas distintas se interpretan como una sola.</td></tr>
+</table>
+
+<div class="box no"><span class="t">La que más te va a importar en la práctica</span>
+La trampa 1. Un proyecto Sparkplug sin LWT configurado es <b>peor</b> que MQTT plano, porque da la ilusión de tener estado: el operador ve "todo verde" y son valores de ayer. En tu caso —7 centrales monitoreadas remotamente— la pregunta "¿este dato es de ahora o de ayer?" es exactamente el valor que Sparkplug aporta. Configurarlo mal es no tenerlo.</div>
+
+<h3>Y una limitación estructural de la spec</h3>
+<div class="box warn"><span class="t">Primario y único por diseño</span>
+Sparkplug B está pensado como <b>n:1</b>: una única "Aplicación Host Primaria" autoritativa por namespace. Está bien para un SCADA que vigila una planta, pero es una limitación cuando la arquitectura quiere <i>varios</i> consumidores con el mismo nivel de autoridad (por ejemplo, el tablero de CONECTA y el SCADA del cliente, ambos escribiendo estado). No es un defecto de implementación: es cómo está diseñada la spec.</div>
+
+<p class="src">Fuente: Sparkplug 3.0 spec (QoS por tipo); thingsboard.io; muhammadamal.my.id ("Sparkplug B for Industrial OT" — pitfalls); sensorsedgehub; industrialmonitordirect.</p>
+
+</section>
+<section id="s11">
+<div class="kicker">Bloque 11</div>
+<h2>Los números, con su fuente</h2>
+
+<p class="lead">Cifras para usar en un argumento. Todas con origen declarado; ninguna inventada.</p>
+
+<table>
+<tr><th>Cifra</th><th>Qué mide</th><th>Fuente</th></tr>
+<tr><td><b>-60 a -75%</b></td><td>Payload protobuf vs JSON equivalente, para los mismos datos.</td><td>i-FLOW, Corso (vía sensorsedgehub)</td></tr>
+<tr><td><b>hasta -80%</b></td><td>Reducción adicional por métrica usando alias en vez del nombre largo.</td><td>i-FLOW</td></tr>
+<tr><td><b>-80 a -95%</b></td><td>Banda total vs arquitecturas de polling, con alias + report-by-exception.</td><td>FlowFuse 2026</td></tr>
+<tr><td><b>~35x</b></td><td>Escritura de un tag: Sparkplug B frente a OPC-UA binario (17 B vs ~600 B).</td><td>industrialmonitordirect (logs de producción)</td></tr>
+<tr><td><b>4,1 GB/mes</b></td><td>Tráfico real de 60 pozos sobre LTE-M a 30 s de ciclo, 12 meses.</td><td>industrialmonitordirect</td></tr>
+<tr><td><b>36–40 GB/mes</b></td><td>Equivalente estimado con OPC-UA binario en el mismo escenario.</td><td>industrialmonitordirect</td></tr>
+<tr><td><b>~89%</b></td><td>Reducción de banda de ese despliegue, con cambio de tres operadores celulares.</td><td>industrialmonitordirect</td></tr>
+<tr><td><b>380 ms</b></td><td>Latencia extremo a extremo medida en ese mismo despliegue.</td><td>industrialmonitordirect</td></tr>
+<tr><td><b>19</b></td><td>Tipos de dato formalmente definidos por la spec.</td><td>eclipse-sparkplug/sparkplug</td></tr>
+<tr><td><b>9</b></td><td>Tipos de mensaje (+2 de registros en 3.0).</td><td>Sparkplug 3.0 spec</td></tr>
+</table>
+
+<div class="box warn"><span class="t">Cómo citar esto sin que te pillen</span>
+El despliegue de 60 pozos y los porcentajes de banda provienen de <b>un caso documentado por un fabricante de pasarelas</b>, no de una medición independiente ni de un caso chileno. Es legítimo citarlo como "reportado en despliegues de la industria", no como "medimos esto". La regla que ya usas con SUPCON aplica igual: mientras no haya un caso medido en Chile, la cifra es de terceros, y se dice así.</div>
+
+</section>
+<section id="s12">
+<div class="kicker">Bloque 12</div>
+<h2>Cuándo sí y cuándo no</h2>
+
+<p class="lead">Sparkplug no es una mejora universal. Tiene un costo —conformidad con una spec y dependencia de herramientas que la entiendan— y un beneficio que depende de tu escala y heterogeneidad.</p>
+
+<div class="grid2">
+<div class="card" style="border-left:4px solid #16a34a"><div class="h" style="color:#4ade80">Usa Sparkplug cuando…</div><div class="d">
+<ul style="margin:8px 0 0 16px">
+<li>Hay <b>más de un productor y más de un consumidor</b>. La interoperabilidad por spec evita negociar formato con cada pieza nueva.</li>
+<li><b>Importa saber si un dato está vivo o viejo.</b> En piso de planta, casi siempre importa.</li>
+<li>El enlace es <b>lento, medido o inestable</b> (celular, satélite, radio): alias y RBE están hechos exactamente para eso.</li>
+<li>Vas a <b>replicar el proyecto</b> entre clientes o sitios: definir el contrato una vez y reusarlo.</li>
+<li>El cliente va a integrar con <b>plataformas que ya hablan Sparkplug</b> (Ignition, EMQX, HiveMQ, ThingsBoard, AVEVA).</li>
+</ul></div></div>
+<div class="card" style="border-left:4px solid #d97706"><div class="h" style="color:#fbbf24">No lo necesitas cuando…</div><div class="d">
+<ul style="margin:8px 0 0 16px">
+<li>Integración <b>chica y cerrada</b>: un productor, un consumidor, el mismo equipo en ambos extremos. JSON documentado basta.</li>
+<li>El consumidor <b>exige payload legible</b>. Sparkplug es binario; si toda la cadena espera JSON, hay que agregar un decodificador y hay que pesarlo.</li>
+<li>Datos que <b>no son telemetría</b>: archivos, transacciones, documentos. Van por otro canal.</li>
+<li>Proyecto <b>desde cero donde controlas ambos extremos</b>: el costo de conformidad no paga.</li>
+</ul></div></div>
+</div>
+
+<div class="box"><span class="t">La señal de que ya lo necesitas</span>
+<b>Si te encuentras programando a mano la detección de "equipo caído" y la resincronización de estado tras una reconexión, Sparkplug ya resolvió eso.</b> Es el indicador más honesto: cuando el equipo empieza a reinventar el modelo de nacimiento/muerte, es porque la arquitectura casera llegó a su techo.</div>
+
+<div class="box no"><span class="t">Y el error inverso, que también existe</span>
+Adoptar Sparkplug para <b>un sistema trivial</b> donde su estructura es puro trámite, o pelearse con la spec porque tus datos no calzan en su modelo de métricas. La regla: elige la herramienta por la escala y la heterogeneidad del despliegue, no por moda.</div>
+
+<p class="src">Fuente: merobix.com ("Plain MQTT vs Sparkplug for SCADA"); captiatechnology.com; muhammadamal.my.id.</p>
+
+</section>
+<section id="s13">
+<div class="kicker">Bloque 13</div>
+<h2>Cautelas: lo que la web bonita no dice</h2>
+
+<p class="lead">Esta sección existe para que no salgas a vender Sparkplug como solución mágica. Son las limitaciones reales, incluidas las que reconocen los propios materiales de la spec.</p>
+
+<ol>
+<li><b>No es "mejor" que MQTT plano — es una especialización.</b> La propia literatura lo dice: Sparkplug cambia flexibilidad por interoperabilidad. Si tu caso no necesita interoperabilidad, cambiaste libertad por trámite.</li>
+<li><b>El stream solo tiene sentido completo.</b> Un <code>DDATA</code> con alias, sin haber visto el <code>DBIRTH</code>, es un número sin significado. Eso obliga a que todo consumidor implemente el modelo de estado. No es "conectar y ver".</li>
+<li><b>El binario es un costo operativo.</b> Nadie lee protobuf en Wireshark sin una herramienta que sepa Sparkplug. El debug es más caro que con JSON.</li>
+<li><b>Dependencia de herramientas.</b> Si tu plataforma no habla Sparkplug, tienes que agregar una capa de traducción. Y ese costo hay que ponerlo en la balanza.</li>
+<li><b>n:1 por diseño.</b> Una sola aplicación host autoritativa por namespace. Arquitecturas que quieren varios consumidores equivalentes chocan con eso.</li>
+<li><b>No hay puente definido entre versiones.</b> Mezclar 2.0 y 3.0 no está cubierto por la spec y produce fallas conocidas.</li>
+<li><b>La spec no define seguridad propia.</b> Sparkplug hereda la seguridad de MQTT (TLS, ACLs). No agrega nada: si MQTT está mal asegurado, Sparkplug también.</li>
+<li><b>El costo de aprendizaje es real.</b> La propia comparativa lo pone en "medio a alto". No es una tarde de trabajo para el equipo.</li>
+</ol>
+
+<div class="box violet"><span class="t">Y una cautela sobre las fuentes de esta clase</span>
+Buena parte del material más entusiasta sobre Sparkplug viene de <b>fabricantes de pasarelas y brokers</b> que lo venden (EMQX, HiveMQ, Cirrus Link, BLIIoT, softwaretoolbox). Las cifras de eficiencia son de esa fuente. Lo estructural —el namespace, los 9 mensajes, el modelo de nacimiento/muerte, el protobuf— sí viene de la <b>especificación oficial de Eclipse</b>, que es autoritativa. Separa las dos cosas al citar: lo estructural es spec; los números son de proveedor.</div>
+
+</section>
+<section id="s18">
+<div class="kicker">Anexo</div>
+<h2>Ejemplo corriendo: Sparkplug B contra un broker real</h2>
+
+<p class="lead">Esta seccion no es teoria: es el codigo que escribi y corri, con su salida real pegada abajo. Publica el ciclo de vida completo de un nodo que imita la central Trueno, y demuestra el mecanismo de nacimiento/muerte.</p>
+
+<h3>Donde esta el codigo</h3>
+<pre>~/Desktop/sparkplug_ejemplo/
+  sparkplug_b_min.py          <span class="c"># el payload Sparkplug B en Python puro</span>
+  ejemplo_sparkplug_gpe.py    <span class="c"># publica NBIRTH/DBIRTH/DDATA/NDEATH</span>
+  verificar_ejemplo.py        <span class="c"># suscriptor que decodifica y comprueba el orden</span>
+  probar_lwt.py               <span class="c"># mata el proceso y verifica que el broker emita el NDEATH</span></pre>
+
+<div class="box yes"><span class="t">Detalle relevante</span>
+No use la libreria Eclipse Tahu: al instalarla, degradaba tu <code>protobuf</code> global de 6.33.6 a 3.19.1 (y eso rompe otras cosas del sistema). En vez de eso, <b>defini el mensaje Payload de la spec con <code>descriptor_pb2</code></b>, en un archivo autocontenido. Es lo mismo que hace el archivo que genera <code>protoc</code>, sin tocar tus dependencias ni bajar nada. El resultado es identico en el cable.</div>
+
+<h3>Como se corre</h3>
+<pre><span class="c"># Publicar contra un broker (aqui, el publico de HiveMQ)</span>
+python3 ejemplo_sparkplug_gpe.py --host broker.hivemq.com --port 1883 \
+    --grupo GPE_MI_GRUPO_UNICO --nodo Trueno_Edge --ciclos 3 --intervalo 2
+
+<span class="c"># En otra terminal: ver lo que llega, decodificado</span>
+python3 verificar_ejemplo.py GPE_MI_GRUPO_UNICO 24</pre>
+
+<div class="box warn"><span class="t">Usa un group_id unico</span>
+En un broker publico como el de HiveMQ <b>cualquiera</b> puede publicar en tu mismo group_id. En la prueba aparecieron mensajes <code>NCMD</code> de otro usuario que uso el mismo grupo por coincidencia. Para una demo con cliente, usa un grupo con tu nombre o un broker propio.</div>
+
+<h3>Lo que publica, con el tamano real de cada mensaje</h3>
+<pre><span class="c">== 2. NBIRTH (nacimiento del nodo) ==</span>
+  -&gt; spBv1.0/GPE_DEMO/NBIRTH/Trueno_Edge        seq=0   <span class="n">bytes=41</span>
+
+<span class="c">== 3. DBIRTH (nacimiento de cada unidad) ==</span>
+  -&gt; spBv1.0/GPE_DEMO/DBIRTH/Trueno_Edge/U1     seq=1   <span class="n">bytes=108</span>
+  -&gt; spBv1.0/GPE_DEMO/DBIRTH/Trueno_Edge/U2     seq=2   <span class="n">bytes=88</span>
+
+<span class="c">== 4. DDATA (solo lo que cambio, solo el alias) ==</span>
+  -&gt; spBv1.0/GPE_DEMO/DDATA/Trueno_Edge/U1      seq=3   <span class="n">bytes=61</span>
+  -&gt; spBv1.0/GPE_DEMO/DDATA/Trueno_Edge/U2      seq=4   <span class="n">bytes=48</span>
+
+<span class="c">== 6. NDEATH (muerte) ==</span>
+  -&gt; spBv1.0/GPE_DEMO/NDEATH/Trueno_Edge        seq=9   <span class="n">bytes=22</span></pre>
+
+<p>Fijate el dato duro: el DBIRTH de la unidad U1 (que declara las 5 metricas completas con nombre, tipo y valor) pesa <b>108 bytes</b>. El DDATA posterior, que manda 4 valores cambiados, pesa <b>61 bytes</b>. Y si miras el DDATA decodificado, los nombres van vacios: <b>solo viaja el alias</b>. Eso es el ahorro, medido, no citado.</p>
+
+<h3>El DDATA decodificado, tal como llego al suscriptor</h3>
+<pre>[DDATA]  spBv1.0/GPE_DEMO/DDATA/Trueno_Edge/U1  (61 bytes)
+timestamp=1791490229376 seq=3
+  metric name='' alias=10 datatype=9 value=5.19
+  metric name='' alias=11 datatype=9 value=7.93
+  metric name='' alias=12 datatype=9 value=321.39
+  metric name='' alias=13 datatype=9 value=51.39</pre>
+<p>Compara con el DBIRTH, donde el alias 10 <b>si</b> traia su nombre: <code>name='P_MW' alias=10 datatype=9 value=5.1</code>. Esa es toda la idea del alias: el nombre viaja una vez, despues solo el numero. El consumidor que guardo el DBIRTH sabe que el 10 es la potencia en MW.</p>
+
+<h3>La prueba que de verdad importa: el Last Will</h3>
+<p>Arranque el nodo como proceso aparte y lo mate con <b>SIGKILL</b> —sin darle ninguna chance de despedirse. Resultado, tomado del verificador independiente:</p>
+<pre>--- MATANDO el proceso con SIGKILL (sin aviso) ---
+proceso muerto con SIGKILL, PID 94428
+[verificador] DDATA   spBv1.0/GPE_LWT/NDeath.../DDATA/Trueno_Edge/U1  (61 bytes)
+[verificador] NDEATH  spBv1.0/GPE_LWT/NDeath.../NDEATH/Trueno_Edge  <span class="n">(22 bytes)</span>
+[verificador] DDATA   spBv1.0/GPE_LWT/NDeath.../DDATA/Trueno_Edge/U2  (48 bytes)
+
+** LWT FUNCIONA **: el NDEATH llego aunque el proceso murio con SIGKILL.
+   Lo publico el BROKER, no el nodo.</pre>
+
+<div class="box yes"><span class="t">Por que esto es el corazon del asunto</span>
+El proceso murio sin avisar y aun asi llego la notificacion de muerte. No la mando el nodo: la mando <b>el broker</b>, porque el nodo habia registrado su testamento (Last Will) al conectarse. Eso es exactamente lo que tu UNS de GPE no tiene hoy: la capacidad de saber que una central se cayo, no solo que dejo de mandar datos. Y no hay que programarlo: es una configuracion del protocolo.</div>
+
+<h3>Resultado de la verificacion de orden</h3>
+<pre>Mensajes recibidos: 10
+  NBIRTH     41 bytes  PROTOBUF OK
+  DBIRTH    108 bytes  PROTOBUF OK
+  DBIRTH     88 bytes  PROTOBUF OK
+  DDATA      61 bytes  PROTOBUF OK
+  DDATA      48 bytes  PROTOBUF OK
+  ... (4 DDATA mas) ...
+  NDEATH     22 bytes  PROTOBUF OK
+
+ORDEN CORRECTO: NBIRTH antes que DDATA
+NDEATH recibido: SI (22 bytes)</pre>
+
+<h3>Como se conecta esto con tu PoC de GPE</h3>
+<p>Este ejemplo ya te sirve como banco de pruebas. Para llevarlo a GPE solo cambia el origen del dato: en vez de generar valores con ruido, se lee el Elipse por OPC-UA y se publica lo mismo. La estructura de los mensajes y el ciclo de vida no cambian.</p>
+
+<div class="box"><span class="t">Lo que demuestra correr esto una vez</span>
+<ul style="margin-bottom:0">
+<li>El payload Sparkplug se construye y se decodifica sin ambiguedad (mismo round-trip en ambos extremos).</li>
+<li>El ahorro de alias es real y medible en bytes.</li>
+<li>El LWT dispara la muerte sola, sin codigo del lado del nodo.</li>
+<li>Un consumidor externo descubre todo el arbol sin que nadie le configure nada.</li>
+</ul></div>
+
+<p class="src">Todo lo anterior es salida real de ejecucion, en el Mac, contra el broker publico broker.hivemq.com, el 8 de octubre de 2026. Los tamanos en bytes son del payload MQTT publicado, no estimaciones.</p>
+
+</section>
+<section id="s14">
+<div class="kicker">Bloque 14</div>
+<h2>Sparkplug en GPE: dónde calza y dónde no</h2>
+
+<p class="lead">Aterrizado a tu caso real, con lo que ya verifiqué en tu Tier0. Esto no es teoría: es tu namespace hoy contra el modelo Sparkplug.</p>
+
+<h3>Lo que ya tienes desplegado</h3>
+<p>Namespace <code>GPE/</code> en tu Tier0: <b>581 objetos, 7 plantas</b> —Embalse_Ancoa, Rio_Colorado, Rio_Huasco, Puclaro, Trueno, Mallarauco, Allipen— con estructura <code>GPE/&lt;Planta&gt;/&lt;Sistema&gt;/&lt;Metric|State|Action&gt;/&lt;variable&gt;</code>. Los topics son jerárquicos y ya son, en el sentido arquitectónico, un <b>UNS válido</b>.</p>
+
+<table>
+<tr><th>Aspecto</th><th>Tu UNS hoy</th><th>Sparkplug B</th></tr>
+<tr><td>Topic jerárquico</td><td>✓ Sí</td><td>✓ Sí (estructura fija)</td></tr>
+<tr><td>Tipos de dato (Metric/State/Action)</td><td>✓ Convención propia</td><td>✓ Tipado en el payload</td></tr>
+<tr><td>Payload</td><td>JSON propio <code>{v,u,q,t}</code></td><td>Protobuf con nombre, tipo, unidad, rango</td></tr>
+<tr><td><b>Nacimiento del equipo</b></td><td>✗ No existe</td><td>✓ <code>NBIRTH</code>/<code>DBIRTH</code></td></tr>
+<tr><td><b>Detección de caída</b></td><td>✗ No existe</td><td>✓ <code>NDEATH</code> vía LWT</td></tr>
+<tr><td><b>Descubrimiento automático</b></td><td>✗ Hay que conocer el árbol</td><td>✓ Un suscriptor lo arma solo</td></tr>
+<tr><td>Comandos estandarizados</td><td>✓ Tienes <code>Action/cmd_arranque</code></td><td>✓ <code>NCMD</code>/<code>DCMD</code></td></tr>
+</table>
+
+<div class="box no"><span class="t">La brecha principal, y es la que importa para la PoC</span>
+Tu UNS declara <i>dónde vive el dato</i>, pero no declara <b>si el dato está vivo</b>. En un parque de 7 centrales monitoreadas en forma remota, un valor congelado que se ve como actual es el riesgo operativo concreto. Sparkplug resuelve exactamente eso y es lo único que tu namespace no tiene.</div>
+
+<h3>Lo que descubrí y que cambia la conversación</h3>
+<p>El flujo <code>GPE-Collector</code> que está corriendo en tu Tier0 <b>no lee el SCADA</b>. Tiene 7 funciones que generan valores con ruido aleatorio (<code>Math.random()</code>) cada 10 segundos. O sea: lo que hoy está arriba es un <b>gemelo simulado</b>, no telemetría real de GPE.</p>
+<p>Esto importa por dos motivos: primero, la PoC con dato real todavía no existe —hay que conectarse al Elipse de GPE por VPN. Y segundo, cuando se conecte el dato real, la decisión de Sparkplug o no <b>hay que tomarla ahí</b>, antes de escribir el bridge definitivo, no después.</p>
+
+<h3>La arquitectura que se desprende</h3>
+<pre>SCADA Elipse (GPE, planta)
+   │  <span class="c">OPC-UA  ← esto es lo que pide la PoC</span>
+   ▼
+Bridge EoN  <span class="c">(corre en el VPS, actúa como "edge node")</span>
+   │  <span class="c">aquí se decide: JSON propio  o  Sparkplug B</span>
+   ▼
+MQTT broker (Tier0)
+   │
+   ▼
+Tier0 UNS  ──→  tablero en vivo
+                reportes CEN
+                alertas</pre>
+
+<div class="box yes"><span class="t">El punto práctico para la PoC</span>
+Para la prueba mínima —una planta, que el dato llegue y se vea— <b>no hace falta Sparkplug</b>. Tu bridge JSON es suficiente y es lo que ya está probado. Sparkplug entra cuando la PoC pase a más de una planta y el cliente pregunte "¿cómo sé que esa central está caída y no solo sin cambios?". Esa pregunta es el gatillo. Pero conviene saberlo <i>antes</i> de escribir el bridge definitivo, porque migrar de JSON propio a Sparkplug después significa rehacer el contrato de datos, no solo el transporte.</div>
+
+<p class="src">Medido: consulta real a la API de Tier0 (`uns search`, `flow list`, `flow data`) del workspace Conecta, 8 oct 2026. La brecha de estado se contrasta contra la spec Sparkplug 3.0 sección Operational Behavior.</p>
+
+</section>
+<section id="s15">
+<div class="kicker">Bloque 15</div>
+<h2>Cómo contarlo a un cliente (sin humo)</h2>
+
+<p class="lead">Traducción a lenguaje de cliente industrial chileno. Sin "flota", sin liderar con la tecnología, sin prometer lo que no está.</p>
+
+<h3>La explicación de una frase</h3>
+<div class="box"><span class="t">Lo que se le dice</span>
+"Hoy cada sistema guarda su dato por su cuenta y, cuando alguien pregunta, nadie sabe si ese dato es de ahora o de ayer. Sparkplug es un estándar abierto que hace que cada equipo <b>se presente solo</b> al conectarse —diciendo todo lo que mide— y que avise <b>automáticamente</b> cuando se cae. Resultado: el tablero nunca muestra un valor viejo como si fuera actual, y cada equipo nuevo se integra sin escribir código a medida."</div>
+
+<h3>Las tres frases que un ingeniero de planta va a pescar</h3>
+<ol>
+<li><b>"Sabes si el dato está vivo o congelado."</b> Es el argumento que ningún SCADA clásico resuelve bien y que un operador entiende de inmediato.</li>
+<li><b>"Un equipo nuevo se conecta y se describe solo."</b> Mata la objeción de "cada equipo nuevo es un desarrollo".</li>
+<li><b>"Es estándar abierto, no de un proveedor."</b> Mata la objeción de quedar amarrado.</li>
+</ol>
+
+<h3>Qué NO decir</h3>
+<table>
+<tr><th>No digas</th><th>Di</th></tr>
+<tr><td>"Es el futuro del IIoT"</td><td>"Es un estándar que ya usan plataformas como Ignition, EMQX y HiveMQ."</td></tr>
+<tr><td>"Ahorra 90% de ancho de banda"</td><td>"En despliegues documentados en enlaces celulares se reporta ese orden de ahorro; en una red de planta con fibra el ahorro importa menos."</td></tr>
+<tr><td>"Lo inventó el creador de MQTT"</td><td>Verdadero y bueno, pero solo si te preguntan quién lo respalda. Si lo sueltas como apertura, suena a dato de folleto.</td></tr>
+<tr><td>"Reemplaza al SCADA"</td><td>"Va encima del SCADA. El SCADA sigue operando; esto es la capa de datos hacia arriba."</td></tr>
+<tr><td>"Es gratis"</td><td>"La especificación es abierta y gratuita. Lo que tiene costo es implementarla bien."</td></tr>
+</table>
+
+<div class="box warn"><span class="t">La objeción que te van a hacer y la respuesta</span>
+<b>"¿Y por qué no seguimos con lo que tenemos?"</b> — Respuesta honesta: si el sistema es chico y de un solo proveedor, seguir con JSON propio está bien y es más simple. Sparkplug se justifica cuando hay varios equipos de varias marcas, o cuando la pregunta "¿este dato es actual?" tiene consecuencias operativas. En un parque de 7 centrales remotas, la tiene.</div>
+
+<div class="box"><span class="t">El puente a tu propia oferta</span>
+Esto no se vende como producto separado. Entra como <b>una decisión de arquitectura dentro del trabajo de datos</b>: el mismo bridge que conecta el SCADA al UNS puede hablar Sparkplug con costo marginal. Es un argumento de calidad técnica, no una línea de cotización nueva.</div>
+
+</section>
+<section id="s16">
+<div class="kicker">Bloque 16</div>
+<h2>Testeo</h2>
+
+<p class="lead">10 preguntas. Cada respuesta despliega su explicacion al revisar, asi que el test ensena aunque falles. Responde de memoria primero; despues lee el porque.</p>
+<div class="quiz">
+<div class="q">1. Del topic spBv1.0/GPE/DDATA/Trueno_Edge/U1, que segmento indica QUE el mensaje es un dato y no un nacimiento?</div><label><input type="radio" name="q0" value="A">A) spBv1.0</label><label><input type="radio" name="q0" value="B">B) DDATA</label><label><input type="radio" name="q0" value="C">C) GPE</label><label><input type="radio" name="q0" value="D">D) Trueno_Edge</label><div class="exp" id="exp0" data-txt="El segmento message_type (tercero) es uno de los 9 tipos fijos y codifica la fase del ciclo de vida. GPE es el group_id, Trueno_Edge el edge_node_id y U1 el device_id."></div>
+<div class="q">2. El esquema de codificacion del payload en Sparkplug B es:</div><label><input type="radio" name="q1" value="A">A) CSV</label><label><input type="radio" name="q1" value="B">B) Protocol Buffers (binario)</label><label><input type="radio" name="q1" value="C">C) JSON</label><label><input type="radio" name="q1" value="D">D) XML</label><div class="exp" id="exp1" data-txt="La spec usa Google Protocol Buffers. Es binario, tipado y 60-75% mas chico que el JSON equivalente. La version A usaba el protobuf de Kura y fue deprecada."></div>
+<div class="q">3. Cual es el nombre del mensaje que declara el esquema completo de una pasarela al conectarse?</div><label><input type="radio" name="q2" value="A">A) NDATA</label><label><input type="radio" name="q2" value="B">B) NDEATH</label><label><input type="radio" name="q2" value="C">C) STATE</label><label><input type="radio" name="q2" value="D">D) NBIRTH</label><div class="exp" id="exp2" data-txt="NBIRTH es el nacimiento del nodo EoN y declara todas las metricas con nombre, tipo, unidad, alias y valor inicial. NDATA es datos, NDEATH es la muerte, STATE es el estado del host."></div>
+<div class="q">4. Como se entera un consumidor de que un equipo se cayo, si la caida fue por corte de red?</div><label><input type="radio" name="q3" value="A">A) Lo detecta cuando el valor deja de cambiar</label><label><input type="radio" name="q3" value="B">B) El consumidor hace ping cada 30 segundos</label><label><input type="radio" name="q3" value="C">C) El equipo alcanza a mandar un NDEATH antes de caerse</label><label><input type="radio" name="q3" value="D">D) El broker publica el NDEATH tomado del Last Will registrado</label><div class="exp" id="exp3" data-txt="Al conectarse, el nodo registra su NDEATH como MQTT Last Will and Testament. Si se cae sin avisar, el BROKER lo publica en su nombre. Ese es el mecanismo central del modelo de estado."></div>
+<div class="q">5. Cuantos tipos de mensaje define Sparkplug B?</div><label><input type="radio" name="q4" value="A">A) 9 (mas 2 de registros en 3.0)</label><label><input type="radio" name="q4" value="B">B) 12</label><label><input type="radio" name="q4" value="C">C) 3</label><label><input type="radio" name="q4" value="D">D) 5</label><div class="exp" id="exp4" data-txt="Nueve: NBIRTH, NDEATH, DBIRTH, DDEATH, NDATA, DDATA, NCMD, DCMD y STATE. La version 3.0 agrego NRECORD y DRECORD para datos historicos por bloque."></div>
+<div class="q">6. A que QoS van los mensajes NBIRTH y DDATA, y por que?</div><label><input type="radio" name="q5" value="A">A) Depende de lo que elija el integrador</label><label><input type="radio" name="q5" value="B">B) QoS 1: para no perder ningun dato</label><label><input type="radio" name="q5" value="C">C) QoS 0: la recuperacion es por renacimiento en cada reconexion</label><label><input type="radio" name="q5" value="D">D) QoS 2: para garantizar entrega exacta</label><div class="exp" id="exp5" data-txt="Los BIRTH/DATA van a QoS 0 (fire-and-forget). La spec lo hace a proposito: no se recupera por reenvio sino porque el nacimiento se republica completo en cada reconexion. Solo NDEATH, los comandos y STATE van a QoS 1."></div>
+<div class="q">7. Un DDATA llega con alias 7 y value 23150.4, y nada mas. Que necesita el consumidor para interpretarlo?</div><label><input type="radio" name="q6" value="A">A) Haber recibido antes el DBIRTH que declaro el alias 7</label><label><input type="radio" name="q6" value="B">B) El diccionario de tags del fabricante</label><label><input type="radio" name="q6" value="C">C) Nada, el mensaje se explica solo</label><label><input type="radio" name="q6" value="D">D) Consultar una base de datos externa de tags</label><div class="exp" id="exp6" data-txt="El alias reemplaza al nombre largo para ahorrar banda, y solo se declara una vez en el nacimiento. Sin haber visto ese DBIRTH, el numero es un valor sin significado: el stream solo se entiende como conjunto."></div>
+<div class="q">8. En tu namespace GPE actual, que parte resuelve Sparkplug que hoy NO tienes?</div><label><input type="radio" name="q7" value="A">A) Definir tipos Metric/State/Action</label><label><input type="radio" name="q7" value="B">B) Transportar el dato por MQTT</label><label><input type="radio" name="q7" value="C">C) Saber si el dato esta vivo o es un valor congelado</label><label><input type="radio" name="q7" value="D">D) Ordenar el arbol por planta</label><div class="exp" id="exp7" data-txt="Tu UNS ya tiene arbol jerarquico, convencion de tipos y transporte MQTT. Lo que no tiene es el modelo de estado: nacimiento y muerte de cada equipo, que es exactamente lo que evita mostrar un valor viejo como si fuera actual."></div>
+<div class="q">9. Cuando Sparkplug B NO aporta y basta con MQTT plano y JSON propio?</div><label><input type="radio" name="q8" value="A">A) Integracion chica y cerrada, con un solo productor y un solo consumidor</label><label><input type="radio" name="q8" value="B">B) Parque de 7 centrales de un mismo cliente</label><label><input type="radio" name="q8" value="C">C) Enlace celular o satelital</label><label><input type="radio" name="q8" value="D">D) Equipos de varias marcas</label><div class="exp" id="exp8" data-txt="Con un productor y un consumidor bajo el mismo equipo, JSON documentado basta y la conformidad con la spec es tramite. El valor aparece cuando hay varios equipos, varias marcas, enlace caro, o importa distinguir dato vivo de dato viejo."></div>
+<div class="q">10. Que limitacion estructural tiene Sparkplug B respecto a la cantidad de consumidores?</div><label><input type="radio" name="q9" value="A">A) No soporta mas de 100 tags</label><label><input type="radio" name="q9" value="B">B) Es n:1: una sola aplicacion host autoritativa por namespace</label><label><input type="radio" name="q9" value="C">C) Solo funciona con un broker</label><label><input type="radio" name="q9" value="D">D) No permite comandos</label><div class="exp" id="exp9" data-txt="La spec es n:1 por diseno: espera una unica Aplicacion Host Primaria autoritativa por namespace. Es una limitacion real cuando se quiere que varios consumidores sean igualmente autoritativos."></div>
+<button onclick="checkTest()">Revisar respuestas</button>
+<div class="score" id="score"></div>
+</div>
+<div class="box"><span class="t">Control del instrumento</span>
+Las posiciones de las respuestas correctas estan mezcladas con cuota fija, no al azar: si quedaran todas en la misma letra, marcar siempre esa letra daria 100% y el test no mediria nada. Distribucion de esta clave: <code>{'B': 3, 'D': 2, 'A': 3, 'C': 2}</code>. Verificado en el navegador marcando siempre la misma opcion (debe dar cerca de 25%).</div>
+
+</section>
+<section id="s17">
+<div class="kicker">Bloque 17</div>
+<h2>Fuentes y qué es autoritativo</h2>
+
+<p class="lead">Qué respalda cada afirmación de esta clase, y qué mirar con cautela.</p>
+
+<h3>Autoritativo (especificación)</h3>
+<ul>
+<li><b>Eclipse Sparkplug 3.0</b> — sparkplug.eclipse.org/specification/ · repositorio github.com/eclipse-sparkplug/sparkplug. Aquí están el namespace, los tipos de mensaje, las reglas de QoS y el protobuf. Todo lo estructural de esta clase sale de aquí.</li>
+<li><b>Eclipse Tahu</b> — github.com/eclipse/tahu. Implementación de referencia (Python, Java, C#, Go, C++) y las herramientas para decodificar payloads.</li>
+<li><b>Protobuf schema</b> — sparkplug_b.proto dentro del repo Tahu. La definición exacta de Payload, Metric y PropertySet.</li>
+</ul>
+
+<h3>Explicaciones técnicas de terceros (buenas, con interés comercial)</h3>
+<ul>
+<li><b>softwaretoolbox.com</b> — "What is Sparkplug B?". El cuadro de los 9 mensajes más claro que hay.</li>
+<li><b>scadaprotocols.com</b> — guía completa, muy buena en el problema raíz de MQTT sin estado.</li>
+<li><b>industrialmonitordirect.com</b> — el despliegue de 60 pozos con números de banda reales. Fuente de las cifras de eficiencia.</li>
+<li><b>deepwiki.com/eclipse-sparkplug</b> — desglose del payload protobuf y las estructuras avanzadas.</li>
+<li><b>EMQX, ThingsBoard, HiveMQ, litmus.io</b> — documentación de brokers/plataformas. Útil para ver qué soporte real tienen las implementaciones, y para las reglas de alias y QoS.</li>
+<li><b>captiatechnology.com</b> y <b>merobix.com</b> — los mejores análisis de cuándo usar Sparkplug y cuándo no, sin vender pasarelas.</li>
+</ul>
+
+<h3>Contexto industrial (para la conversación con el cliente)</h3>
+<ul>
+<li><b>global.supcon.com</b> — blog "Why MQTT Topics + JSON Are Ideal for LLM Agents in a Simulated Factory" (sep 2025). Útil como referencia de que SUPCON documenta esta línea, pero ojo: es un experimento de investigación en Factorio, no un despliegue industrial, y ellos mismos lo aclaran.</li>
+</ul>
+
+<div class="box no"><span class="t">Qué mirar con cautela</span>
+Casi todo el material entusiasta sobre Sparkplug viene de <b>quien vende brokers o pasarelas</b>. Trata así las cifras de eficiencia y las comparativas: son de proveedor. Lo que es autoritativo —y lo que puedes defender en una reunión técnica— es lo que está en la <b>spec de Eclipse</b>: el nombre de los mensajes, la estructura del topic, las reglas de QoS, el uso del LWT. Esa parte no es opinión de nadie.</div>
+
+<div class="box"><span class="t">Cómo verificar por tu cuenta</span>
+Un payload Sparkplug real se decodifica con las utilidades de Eclipse Tahu (<code>protobuf_decode.py</code>) o el inspector de protobuf. Si tienes un broker a mano, todo Sparkplug se puede observar en vivo sin tocar una planta: los mensajes de nacimiento son públicos una vez que el broker los reparte.</div>
+
+<p class="src">Clase generada el 8 de octubre de 2026. Material de estudio interno CONECTA. La especificación es la fuente autoritativa; los números de eficiencia son de terceros y se citan como tales.</p>
+
+</section>
+
+</main>
+</div>
+<script>
+var RESP = ["B", "B", "D", "D", "A", "C", "A", "C", "A", "B"];
+function checkTest(){
+  var ok=0, tot=RESP.length;
+  for(var i=0;i<tot;i++){
+    var sel=document.querySelector('input[name="q'+i+'"]:checked');
+    var exp=document.getElementById('exp'+i);
+    exp.className='exp show';
+    if(sel && sel.value===RESP[i]){
+      ok++; exp.className='exp show ok'; exp.innerHTML='<b>Correcto.</b> '+exp.dataset.txt;
+    } else {
+      exp.className='exp show bad';
+      var corr = '';
+      var opts=document.querySelectorAll('input[name="q'+i+'"]');
+      for(var j=0;j<opts.length;j++){ if(opts[j].value===RESP[i]){
+        corr=opts[j].parentNode.textContent.replace(/^[A-D]\)\s*/,'').trim(); } }
+      exp.innerHTML='<b>Incorrecto.</b> La correcta es <b>'+RESP[i]+')</b> '+corr+'.<br>'+exp.dataset.txt;
+    }
+  }
+  var pct=Math.round(ok/tot*100);
+  var s=document.getElementById('score');
+  s.className='score show';
+  var msg = pct>=88 ? 'Dominas el tema. Puedes explicarlo a un cliente sin apoyo.' :
+            pct>=63 ? 'Base sólida. Repasa los bloques de los errores.' :
+            pct>=38 ? 'Entendiste la idea general; la mecánica todavía no.' :
+                      'Vuelve a leer desde el bloque 2 antes de usarlo con un cliente.';
+  s.innerHTML='Puntaje: <span style="color:#3b82f6">'+ok+' / '+tot+'</span>  ('+pct+'%)<br><span style="font-weight:400;color:#94a3b8">'+msg+'</span>';
+  s.scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+</body>
+</html>
